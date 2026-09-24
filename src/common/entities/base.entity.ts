@@ -1,11 +1,26 @@
 import { Type, instanceToPlain, plainToInstance } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export abstract class BaseEntity {
+  @ApiProperty({
+    description: 'Unique identifier',
+    example: '60d0fe4f5311236168a109ca',
+  })
   id: string;
 
+  @ApiPropertyOptional({
+    description: 'Timestamp when the entity was created',
+    example: '2026-09-25T00:00:00.000Z',
+    type: Date,
+  })
   @Type(() => Date)
   createdAt?: Date;
 
+  @ApiPropertyOptional({
+    description: 'Timestamp when the entity was last updated',
+    example: '2026-09-25T00:00:00.000Z',
+    type: Date,
+  })
   @Type(() => Date)
   updatedAt?: Date;
 
@@ -21,7 +36,7 @@ export abstract class BaseEntity {
         } else if (typeof value === 'string') {
           const transformed = plainToInstance(BaseEntity as any, {
             [field]: value,
-          }) as Record<string, any>;
+          }) as unknown as Record<string, Date | undefined>;
           date = transformed[field];
         }
 
