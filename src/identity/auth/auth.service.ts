@@ -37,7 +37,6 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
-      message: 'Registration successful',
       user: createdUser,
       accessToken,
     };

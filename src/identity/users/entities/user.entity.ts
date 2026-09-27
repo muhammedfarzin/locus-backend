@@ -78,6 +78,12 @@ export class UserEntity extends BaseEntity {
   })
   status: UserStatus;
 
+  @ApiProperty({ required: true })
+  declare createdAt: Date;
+
+  @ApiProperty({ required: true })
+  declare updatedAt: Date;
+
   constructor(partial?: Partial<UserEntity>) {
     super(partial);
     if (partial) {

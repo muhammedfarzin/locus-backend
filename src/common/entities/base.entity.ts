@@ -36,7 +36,7 @@ export abstract class BaseEntity {
         } else if (typeof value === 'string') {
           const transformed = plainToInstance(BaseEntity as any, {
             [field]: value,
-          }) as unknown as Record<string, Date | undefined>;
+          }) as Record<string, Date | undefined>;
           date = transformed[field];
         }
 

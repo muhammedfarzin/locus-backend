@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ConflictException } from '@nestjs/common';
 import { UserRole } from '../users/enums/user-role.enum';
 import { UserStatus } from '../users/enums/user-status.enum';
-import { UserAuthProvider } from '../users/enums/user-auth-provider.enum';
 import { UserEntity } from '../users/entities/user.entity';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -88,7 +87,6 @@ describe('AuthService', () => {
           identities: [],
         }),
       );
-      expect(result.message).toBe('Registration successful');
       expect(result.user.roles).toEqual([UserRole.USER]);
       expect(result.user.status).toBe(UserStatus.PENDING_VERIFICATION);
       expect(result.accessToken).toBe('mock-jwt-token');

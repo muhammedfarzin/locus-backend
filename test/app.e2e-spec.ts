@@ -8,6 +8,30 @@ import { Connection } from 'mongoose';
 import { UserRole } from 'src/identity/users/enums/user-role.enum';
 import { UserStatus } from 'src/identity/users/enums/user-status.enum';
 
+interface UserResponse {
+  id?: string;
+  uid: string;
+  name: string;
+  email: string;
+  roles: UserRole[];
+  status: UserStatus;
+  password?: string;
+  passwordHash?: string;
+}
+
+interface RegisterDataResponse {
+  user: UserResponse;
+  accessToken: string;
+}
+
+interface StandardTestResponse<T = unknown> {
+  statusCode: number;
+  message: string | string[];
+  data: T;
+  timestamp: string;
+  path: string;
+}
+
 describe('Auth (e2e)', () => {
   let app: INestApplication<App>;
   let connection: Connection;
@@ -61,20 +85,26 @@ describe('Auth (e2e)', () => {
         .send(registerPayload)
         .expect(201);
 
-      expect(res.body).toHaveProperty('message', 'Registration successful');
-      expect(res.body).toHaveProperty('accessToken');
-      expect(typeof res.body.accessToken).toBe('string');
-      expect(res.body.accessToken.split('.')).toHaveLength(3);
+      const body = res.body as StandardTestResponse<RegisterDataResponse>;
 
-      expect(res.body.user).toBeDefined();
-      expect(res.body.user.id).toBeUndefined();
-      expect(res.body.user.uid).toMatch(/^usr_[A-Za-z0-9_-]+$/);
-      expect(res.body.user.name).toBe('John Doe');
-      expect(res.body.user.email).toBe(`john.doe${testEmailDomain}`);
-      expect(res.body.user.roles).toEqual([UserRole.USER]);
-      expect(res.body.user.status).toBe(UserStatus.PENDING_VERIFICATION);
-      expect(res.body.user.password).toBeUndefined();
-      expect(res.body.user.passwordHash).toBeUndefined();
+      expect(body).toHaveProperty('statusCode', 201);
+      expect(body).toHaveProperty('message', 'Registration successful');
+      expect(body).toHaveProperty('timestamp');
+      expect(body).toHaveProperty('path', '/auth/register');
+      expect(body).toHaveProperty('data');
+      expect(body.data).toHaveProperty('accessToken');
+      expect(typeof body.data.accessToken).toBe('string');
+      expect(body.data.accessToken.split('.')).toHaveLength(3);
+
+      expect(body.data.user).toBeDefined();
+      expect(body.data.user.id).toBeUndefined();
+      expect(body.data.user.uid).toMatch(/^usr_[A-Za-z0-9_-]+$/);
+      expect(body.data.user.name).toBe('John Doe');
+      expect(body.data.user.email).toBe(`john.doe${testEmailDomain}`);
+      expect(body.data.user.roles).toEqual([UserRole.USER]);
+      expect(body.data.user.status).toBe(UserStatus.PENDING_VERIFICATION);
+      expect(body.data.user.password).toBeUndefined();
+      expect(body.data.user.passwordHash).toBeUndefined();
     });
 
     it('should ignore client-supplied role and roles, assigning default USER role', async () => {
@@ -91,8 +121,10 @@ describe('Auth (e2e)', () => {
         .send(exploitedPayload)
         .expect(201);
 
-      expect(res.body.user.roles).toEqual([UserRole.USER]);
-      expect(res.body.user.status).toBe(UserStatus.PENDING_VERIFICATION);
+      const body = res.body as StandardTestResponse<RegisterDataResponse>;
+
+      expect(body.data.user.roles).toEqual([UserRole.USER]);
+      expect(body.data.user.status).toBe(UserStatus.PENDING_VERIFICATION);
     });
 
     it('should reject duplicate registration with 409 Conflict', async () => {
@@ -116,9 +148,15 @@ describe('Auth (e2e)', () => {
         })
         .expect(409);
 
-      expect(duplicateRes.body.message).toBe(
+      const duplicateBody = duplicateRes.body as StandardTestResponse<null>;
+
+      expect(duplicateBody.statusCode).toBe(409);
+      expect(duplicateBody.message).toBe(
         'A user with this email already exists',
       );
+      expect(duplicateBody.data).toBeNull();
+      expect(duplicateBody.path).toBe('/auth/register');
+      expect(duplicateBody.timestamp).toBeDefined();
     });
 
     it('should reject registration when email format is invalid', async () => {
@@ -133,7 +171,13 @@ describe('Auth (e2e)', () => {
         .send(invalidPayload)
         .expect(400);
 
-      expect(res.body.message).toEqual(
+      const body = res.body as StandardTestResponse<null>;
+
+      expect(body.statusCode).toBe(400);
+      expect(body.data).toBeNull();
+      expect(body.path).toBe('/auth/register');
+      expect(body.timestamp).toBeDefined();
+      expect(body.message).toEqual(
         expect.arrayContaining([
           expect.stringContaining('Invalid email address'),
         ]),
@@ -152,7 +196,13 @@ describe('Auth (e2e)', () => {
         .send(weakPasswordPayload)
         .expect(400);
 
-      expect(res.body.message).toEqual(
+      const body = res.body as StandardTestResponse<null>;
+
+      expect(body.statusCode).toBe(400);
+      expect(body.data).toBeNull();
+      expect(body.path).toBe('/auth/register');
+      expect(body.timestamp).toBeDefined();
+      expect(body.message).toEqual(
         expect.arrayContaining([
           expect.stringContaining(
             'Password must be at least 8 characters long',
@@ -167,7 +217,13 @@ describe('Auth (e2e)', () => {
         .send({})
         .expect(400);
 
-      expect(res.body.message).toEqual(
+      const body = res.body as StandardTestResponse<null>;
+
+      expect(body.statusCode).toBe(400);
+      expect(body.data).toBeNull();
+      expect(body.path).toBe('/auth/register');
+      expect(body.timestamp).toBeDefined();
+      expect(body.message).toEqual(
         expect.arrayContaining([
           'Name is required',
           'Email is required',

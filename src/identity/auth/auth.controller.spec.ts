@@ -11,7 +11,6 @@ describe('AuthController', () => {
   beforeEach(async () => {
     authService = {
       register: jest.fn().mockResolvedValue({
-        message: 'Registration successful',
         user: {
           id: 'mock-id',
           uid: 'mock-uid',
