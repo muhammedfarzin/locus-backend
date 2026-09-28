@@ -132,7 +132,7 @@ export class UsersRepository implements IUsersRepository {
     updateUserDto: UpdateUserDto,
   ): Promise<UserEntity | null> {
     const doc = await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .findByIdAndUpdate(id, updateUserDto, { returnDocument: 'after' })
       .exec();
     return this.toEntity(doc);
   }

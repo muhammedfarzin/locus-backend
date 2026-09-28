@@ -47,8 +47,13 @@ describe('Swagger Documentation (e2e)', () => {
     expect(res.status).toBe(200);
     expect(body.info.title).toBe('Locus API');
     expect(body.paths).toHaveProperty('/auth/register');
+    expect(body.paths).toHaveProperty('/auth/verify-email');
+    expect(body.paths).toHaveProperty('/auth/resend-otp');
     expect(body.components.schemas).toHaveProperty('RegisterDto');
     expect(body.components.schemas).toHaveProperty('RegisterResponseDto');
+    expect(body.components.schemas).toHaveProperty('VerifyEmailDto');
+    expect(body.components.schemas).toHaveProperty('VerifyEmailResponseDto');
+    expect(body.components.schemas).toHaveProperty('ResendOtpDto');
     expect(body.components.schemas).toHaveProperty('ApiResponseDto');
     expect(body.components.schemas).toHaveProperty('ApiErrorResponseDto');
 

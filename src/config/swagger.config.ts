@@ -3,6 +3,9 @@ import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { ApiResponseDto } from '../common/dto/api-response.dto';
 import { ApiErrorResponseDto } from '../common/dto/api-error-response.dto';
 import { RegisterResponseDto } from '../identity/auth/dto/register-response.dto';
+import { VerifyEmailResponseDto } from '../identity/auth/dto/verify-email-response.dto';
+import { VerifyEmailDto } from '../identity/auth/dto/verify-email.dto';
+import { ResendOtpDto } from '../identity/auth/dto/resend-otp.dto';
 
 /**
  * Post-processes the OpenAPI document so that any standard response envelope
@@ -94,7 +97,14 @@ export function createSwaggerDocument(app: INestApplication): OpenAPIObject {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
-    extraModels: [ApiResponseDto, ApiErrorResponseDto, RegisterResponseDto],
+    extraModels: [
+      ApiResponseDto,
+      ApiErrorResponseDto,
+      RegisterResponseDto,
+      VerifyEmailResponseDto,
+      VerifyEmailDto,
+      ResendOtpDto,
+    ],
   });
 
   return patchSwaggerResponsePaths(document);
